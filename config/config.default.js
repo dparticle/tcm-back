@@ -40,8 +40,15 @@ module.exports = appInfo => {
   };
 
   // csrf 关闭
-  exports.security = {
+  config.security = {
     csrf: false,
+    // 白名单，不加也可以实现跨域访问
+    domainWhiteList: [ '*' ],
+  };
+
+  config.cors = {
+    origin: '*',
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
   };
 
   // add your user config here

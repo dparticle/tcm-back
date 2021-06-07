@@ -2,7 +2,7 @@
 
 const Controller = require('egg').Controller;
 
-class SearchController extends Controller {
+class TcmController extends Controller {
   async searchImageUrls() {
     const { ctx } = this;
     const tcmId = ctx.request.body.tcm_id;
@@ -13,4 +13,4 @@ class SearchController extends Controller {
   }
 }
 
-module.exports = SearchController;
+module.exports = TcmController;

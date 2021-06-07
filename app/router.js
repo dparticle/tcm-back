@@ -6,5 +6,8 @@
 module.exports = app => {
   const { router, controller } = app;
   router.get('/', controller.home.index);
-  router.post('/search/img', controller.search.searchImageUrls);
+  // tcm api
+  router.post('/tcm/img', controller.tcm.searchImageUrls);
+  // user api
+  router.post('/user/login', controller.user.login);
 };

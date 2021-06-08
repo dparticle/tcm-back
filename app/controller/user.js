@@ -7,24 +7,34 @@ class UserController extends Controller {
   async isNewUser(phone) {
     const result = await this.app.mysql.select('user', {
       where: { phone },
-      columns: [ 'id', 'phone' ],
+      columns: [ 'id', 'phone', 'remove_time' ],
     });
-    return result.length === 0;
+    return result.length === 0 || result[0].remove_time !== null;
   }
 
   async login() {
     const { ctx } = this;
-    console.log(ctx.request.body);
-    const username = ctx.request.body.username;
-    const pwd = ctx.request.body.password;
+    // console.log(ctx.request.body);
+    const phone = ctx.request.body.phone;
+    const password = ctx.request.body.password;
     const result = await this.app.mysql.select('user', {
-      where: { phone: username, password: pwd },
+      where: { phone, password },
       columns: [ 'id' ],
     });
-    ctx.body = result.length !== 0;
+    if (result.length === 0) {
+      ctx.body = {
+        state: false,
+        message: await this.isNewUser(phone) ? '用户不存在' : '密码错误',
+      };
+    } else {
+      ctx.body = {
+        state: true,
+        message: '登录成功',
+      };
+    }
   }
 
-  async register() {
+  async reg() {
     const { ctx } = this;
     const phone = ctx.request.body.phone;
     if (await this.isNewUser(phone)) {
@@ -42,7 +52,7 @@ class UserController extends Controller {
         update_time: createTime,
       });
     } else {
-      ctx.body = '此手机号已注册';
+      ctx.body = { error: '手机号已注册' };
     }
 
   }

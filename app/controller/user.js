@@ -30,12 +30,9 @@ class UserController extends Controller {
     if (await this.isNewUser(phone)) {
       const createTime = moment(new Date())
         .format('YYYY-MM-DD HH:mm:ss');
-      let username = ctx.request.body.username;
-      const avatar_url = ctx.request.body.uploader[0].url;
+      const username = ctx.request.body.username === null ? phone : ctx.request.body.username;
+      const avatar_url = ctx.request.body.uploader === null ? null : ctx.request.body.uploader[0].url;
       const password = ctx.request.body.password;
-      if (username === null) {
-        username = phone;
-      }
       ctx.body = await this.app.mysql.insert('user', {
         username,
         avatar_url,

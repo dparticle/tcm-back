@@ -10,4 +10,5 @@ module.exports = app => {
   router.post('/tcm/img', controller.tcm.searchImageUrls);
   // user api
   router.post('/user/login', controller.user.login);
+  router.post('/user/register', controller.user.register);
 };

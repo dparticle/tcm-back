@@ -39,6 +39,10 @@ module.exports = appInfo => {
     agent: false,
   };
 
+  config.jwt = {
+    secret: 'dparticle',
+  };
+
   // csrf 关闭
   config.security = {
     csrf: false,

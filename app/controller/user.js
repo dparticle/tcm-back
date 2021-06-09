@@ -13,8 +13,8 @@ class UserController extends Controller {
   }
 
   async login() {
-    const { ctx } = this;
-    // console.log(ctx.request.body);
+    const { ctx, app } = this;
+    console.log(ctx.request.body);
     const phone = ctx.request.body.phone;
     const password = ctx.request.body.password;
     const result = await this.app.mysql.select('user', {
@@ -23,25 +23,23 @@ class UserController extends Controller {
     });
     if (result.length === 0) {
       ctx.body = {
-        state: false,
-        message: await this.isNewUser(phone) ? '用户不存在' : '密码错误',
+        error: await this.isNewUser(phone) ? '用户不存在' : '密码错误',
       };
     } else {
-      ctx.body = {
-        state: true,
-        message: '登录成功',
-      };
+      ctx.body = app.jwt.sign({ phone }, app.config.jwt.secret, { expiresIn: '1 days' });
     }
   }
 
   async reg() {
     const { ctx } = this;
+    console.log(ctx.request.body);
     const phone = ctx.request.body.phone;
     if (await this.isNewUser(phone)) {
       const createTime = moment(new Date())
         .format('YYYY-MM-DD HH:mm:ss');
-      const username = ctx.request.body.username === null ? phone : ctx.request.body.username;
-      const avatar_url = ctx.request.body.uploader === null ? null : ctx.request.body.uploader[0].url;
+      // 如果 username 是空，与手机号相同
+      const username = ctx.request.body.username === undefined ? phone : ctx.request.body.username;
+      const avatar_url = ctx.request.body.uploader === undefined ? null : ctx.request.body.uploader[0].url;
       const password = ctx.request.body.password;
       ctx.body = await this.app.mysql.insert('user', {
         username,
@@ -54,7 +52,6 @@ class UserController extends Controller {
     } else {
       ctx.body = { error: '手机号已注册' };
     }
-
   }
 }
 

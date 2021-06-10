@@ -11,4 +11,5 @@ module.exports = app => {
   // user api
   router.post('/user/login', controller.user.login);
   router.post('/user/reg', controller.user.reg);
+  router.get('/user/me', app.jwt, controller.user.me);
 };

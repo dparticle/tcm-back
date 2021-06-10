@@ -13,6 +13,8 @@ class UserController extends Controller {
   }
 
   async login() {
+    // log
+    console.log('POST /user/login');
     const { ctx, app } = this;
     console.log(ctx.request.body);
     const phone = ctx.request.body.phone;
@@ -31,6 +33,8 @@ class UserController extends Controller {
   }
 
   async reg() {
+    // log
+    console.log('POST /user/reg');
     const { ctx } = this;
     console.log(ctx.request.body);
     const phone = ctx.request.body.phone;
@@ -52,6 +56,19 @@ class UserController extends Controller {
     } else {
       ctx.body = { error: '手机号已注册' };
     }
+  }
+
+  async me() {
+    // log
+    console.log('GET /user/me');
+    const { ctx } = this;
+    console.log(ctx.state.user);
+    const phone = ctx.state.user.phone;
+    const result = await this.app.mysql.select('user', {
+      where: { phone },
+      columns: [ 'username', 'avatar_url', 'phone' ],
+    });
+    ctx.body = result[0];
   }
 }
 

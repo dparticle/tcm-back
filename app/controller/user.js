@@ -70,6 +70,14 @@ class UserController extends Controller {
     });
     ctx.body = result[0];
   }
+
+  async refreshToken() {
+    // log
+    console.log('POST /user/refreshToken');
+    const { ctx, app } = this;
+    console.log(ctx.request.body);
+    ctx.body = app.jwt.sign({ phone: ctx.request.body.phone }, app.config.jwt.secret, { expiresIn: '1 days' });
+  }
 }
 
 module.exports = UserController;

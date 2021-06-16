@@ -2,7 +2,7 @@
 
 const { Service } = require('egg');
 
-class UserService extends Service {
+class UsersService extends Service {
   // 判断用户是否为存在
   async isExist(phone) {
     const result = await this.app.mysql.select('user', {
@@ -19,8 +19,16 @@ class UserService extends Service {
       where: { phone, password },
       columns: [ 'id' ],
     });
-    return result.length !== 0;
+    if (result.length !== 0) {
+      return true;
+    }
+    const errorMsg = await this.isExist(phone) ? '密码错误' : '用户不存在';
+    this.ctx.throw(403, errorMsg);
+    return false;
+
+
+    // return result.length !== 0;
   }
 }
 
-module.exports = UserService;
+module.exports = UsersService;

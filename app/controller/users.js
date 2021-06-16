@@ -10,12 +10,9 @@ class UserController extends Controller {
     ctx.logger.info('login data: %o', ctx.request.body);
     const phone = ctx.request.body.phone;
     const password = ctx.request.body.password;
-    if (await service.user.login(phone, password)) {
-      // ctx.body = app.jwt.sign({ phone }, app.config.jwt.secret, { expiresIn: '1 days' });
-      ctx.body = await service.token.createToken({ phone });
-    } else {
-      ctx.body = await service.user.isExist(phone) ? '密码错误' : '用户不存在';
-    }
+    // 登录，如果登录失败直接抛出错误不会执行创建 token
+    await service.users.login(phone, password);
+    ctx.body = service.token.createToken({ phone });
   }
 
   async reg() {
@@ -57,15 +54,15 @@ class UserController extends Controller {
     ctx.body = result[0];
   }
 
-  async refreshToken() {
+  refreshToken() {
     const { ctx, service } = this;
     // %j vs %o，在这只是打印样式不同
     ctx.logger.info('refresh token data: %o', ctx.request.body);
     const token = ctx.request.body.token;
     // ctx.body = app.jwt.sign({ phone: ctx.request.body.phone }, app.config.jwt.secret, { expiresIn: '1 days' });
-    if (await service.token.isTokenExpired(token)) {
+    if (service.token.isTokenExpired(token)) {
       ctx.logger.info('token 即将过期或过期不久，更新 token');
-      ctx.body = await service.token.createToken({ phone: await service.token.getPhone(token) });
+      ctx.body = service.token.createToken({ phone: service.token.getPhone(token) });
     } else {
       ctx.logger.info('token 过期，无法更新 token');
       ctx.status = 403;

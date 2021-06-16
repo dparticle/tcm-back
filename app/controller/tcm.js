@@ -31,13 +31,40 @@ class TcmController extends Controller {
     console.log('POST /tcm/rough');
     const { ctx } = this;
     console.log(ctx.request.body);
-    const page = ctx.request.body.page;
-    const perPage = ctx.request.body.perPage;
-    const result = await this.app.mysql.select('tcm_info', {
-      columns: [ 'id', 'name', 'name_eng' ],
-      limit: perPage,
-      offset: page * perPage,
-    });
+    const pageIndex = ctx.request.body.pageIndex;
+    const pageSize = ctx.request.body.pageSize;
+    const classification = ctx.request.body.classification;
+    let result;
+    if (classification) {
+      const keyword = '%' + ctx.request.body.keyword + '%';
+      const sql = 'SELECT id, name, name_eng FROM tcm_info WHERE ' + classification + ' LIKE ? LIMIT ? OFFSET ?';
+      result = await this.app.mysql.query(sql,
+        [ keyword, pageSize, pageSize * pageIndex ]);
+    } else {
+      result = await this.app.mysql.query('SELECT id, name, name_eng FROM tcm_info LIMIT ? OFFSET ?',
+        [ pageSize, pageIndex * pageSize ]);
+    }
+    // 遍历所有结果，添加图片属性
+    for (const r of result) {
+      const imgList = await this.getImageUrls(r.id);
+      if (imgList.length !== 0) {
+        // 默认添加第一张图片
+        r.img = imgList[0];
+      }
+    }
+    ctx.body = result;
+  }
+
+  // TODO 供给前端临时 api
+  async searchByName() {
+    console.log('POST /tcm/name');
+    const { ctx } = this;
+    console.log(ctx.request.body);
+    const pageIndex = ctx.request.body.pageIndex;
+    const pageSize = ctx.request.body.pageSize;
+    const name = '%' + ctx.request.body.pageIndex + '%';
+    const result = await this.app.mysql.query('SELECT id, name, name_eng FROM tcm_info WHERE name LIKE ? LIMIT ? OFFSET ?',
+      [ name, pageSize, pageIndex * pageSize ]);
     // 遍历所有结果，添加图片属性
     for (const r of result) {
       const imgList = await this.getImageUrls(r.id);
@@ -71,7 +98,7 @@ class TcmController extends Controller {
     console.log('GET /recommend/tcm');
     const { ctx } = this;
     // 获取当天推荐的 tcm 的 id
-    const recommendIdList = await this.app.mysql.query('SELECT tcm_id FROM recommend WHERE TO_DAYS(create_time) = TO_DAYS(NOW())');
+    const recommendIdList = await this.app.mysql.query('SELECT tcm_id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())');
     const result = [];
     for (const item of recommendIdList) {
       result.push(await this.getInfoById(item.tcm_id, [ 'id', 'name', 'actions' ]));

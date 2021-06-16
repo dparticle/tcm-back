@@ -4,31 +4,17 @@ const moment = require('moment');
 const Controller = require('egg').Controller;
 
 class UserController extends Controller {
-  async isNewUser(phone) {
-    const result = await this.app.mysql.select('user', {
-      where: { phone },
-      columns: [ 'id', 'phone', 'remove_time' ],
-    });
-    return result.length === 0 || result[0].remove_time !== null;
-  }
 
   async login() {
-    // log
-    console.log('POST /user/login');
-    const { ctx, app } = this;
-    console.log(ctx.request.body);
+    const { ctx, service } = this;
+    ctx.logger.info('login data: %o', ctx.request.body);
     const phone = ctx.request.body.phone;
     const password = ctx.request.body.password;
-    const result = await this.app.mysql.select('user', {
-      where: { phone, password },
-      columns: [ 'id' ],
-    });
-    if (result.length === 0) {
-      ctx.body = {
-        error: await this.isNewUser(phone) ? '用户不存在' : '密码错误',
-      };
+    if (await service.user.login(phone, password)) {
+      // ctx.body = app.jwt.sign({ phone }, app.config.jwt.secret, { expiresIn: '1 days' });
+      ctx.body = await service.token.createToken({ phone });
     } else {
-      ctx.body = app.jwt.sign({ phone }, app.config.jwt.secret, { expiresIn: '1 days' });
+      ctx.body = await service.user.isExist(phone) ? '密码错误' : '用户不存在';
     }
   }
 
@@ -72,11 +58,19 @@ class UserController extends Controller {
   }
 
   async refreshToken() {
-    // log
-    console.log('POST /user/refreshToken');
-    const { ctx, app } = this;
-    console.log(ctx.request.body);
-    ctx.body = app.jwt.sign({ phone: ctx.request.body.phone }, app.config.jwt.secret, { expiresIn: '1 days' });
+    const { ctx, service } = this;
+    // %j vs %o，在这只是打印样式不同
+    ctx.logger.info('refresh token data: %o', ctx.request.body);
+    const token = ctx.request.body.token;
+    // ctx.body = app.jwt.sign({ phone: ctx.request.body.phone }, app.config.jwt.secret, { expiresIn: '1 days' });
+    if (await service.token.isTokenExpired(token)) {
+      ctx.logger.info('token 即将过期或过期不久，更新 token');
+      ctx.body = await service.token.createToken({ phone: await service.token.getPhone(token) });
+    } else {
+      ctx.logger.info('token 过期，无法更新 token');
+      ctx.status = 403;
+      ctx.body = 'token expired';
+    }
   }
 }
 

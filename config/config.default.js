@@ -55,6 +55,14 @@ module.exports = appInfo => {
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH',
   };
 
+  // 配置打印日志的级别
+  config.logger = {
+    // 文件
+    // level: 'DEBUG',
+    // 终端
+    consoleLevel: 'DEBUG',
+  };
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',

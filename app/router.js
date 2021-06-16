@@ -13,8 +13,8 @@ module.exports = app => {
   router.get('/recommend/tcm', controller.tcm.getRecommendTcm);
   router.get('/recommend/article', controller.tcm.getRecommendArticle);
   // user api
-  router.post('/user/login', controller.user.login);
+  router.post('/login', controller.user.login);
   router.post('/user/reg', controller.user.reg);
   router.get('/user/me', app.jwt, controller.user.me);
-  router.post('/user/refreshToken', controller.user.refreshToken);
+  router.post('/users/refreshToken', controller.user.refreshToken);
 };

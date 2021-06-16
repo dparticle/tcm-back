@@ -2,7 +2,7 @@
 
 const Controller = require('egg').Controller;
 
-class TcmController extends Controller {
+class TcmsController extends Controller {
   async getImageUrls(id) {
     console.log('search image urls by ' + id + ' id');
     const result = await this.app.mysql.select('tcm_img', {
@@ -139,4 +139,4 @@ class TcmController extends Controller {
   }
 }
 
-module.exports = TcmController;
+module.exports = TcmsController;

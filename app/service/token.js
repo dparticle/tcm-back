@@ -5,37 +5,34 @@ const { Service } = require('egg');
 
 class TokenService extends Service {
   // 生成密钥
-  createToken(msg) {
+  createToken(obj) {
     const { app } = this;
-    return app.jwt.sign(msg, app.config.jwt.secret, { expiresIn: '1 days' });
+    return app.jwt.sign(obj, app.config.jwt.secret, { expiresIn: '1 days' });
   }
 
   // 解析 token
   parseToken(token) {
-    const { ctx } = this;
     const info = JSON.parse(
       Buffer.from(token.split('.')[1], 'base64')
         .toString()
     );
-    ctx.logger.info('token info: %o', info);
+    this.ctx.logger.info('token info: %o', info);
     return info;
   }
 
-  // 获取 token 手机号
-  getPhone(token) {
-    const { ctx } = this;
-    const phone = (this.parseToken(token)).phone;
-    ctx.logger.info('解析 token 获取手机号 => ' + phone);
-    return phone;
+  // 获取 token 中的 id 信息
+  getId(token) {
+    const id = (this.parseToken(token)).id;
+    this.ctx.logger.info('解析 token 获取用户 id => ' + id);
+    return id;
   }
 
   // 获取 token 有效期
   getExpires(token) {
-    const { ctx } = this;
     // egg-jwt 的时间只记录到秒，所以它保存的是 10 位时间戳
     // Date().getTime() 获取的是 13 位时间戳，做计算需要乘以 1000
     const exp = (this.parseToken(token)).exp * 1000;
-    ctx.logger.info('解析 token 获取有效期 => ' + this.formatDate(exp));
+    this.ctx.logger.info('解析 token 获取有效期 => ' + this.formatDate(exp));
     return Number(exp);
   }
 

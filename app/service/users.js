@@ -41,7 +41,7 @@ class UsersService extends Service {
     }
     const errorMsg = await this.isExistByPhone(phone) ? '密码错误' : '用户不存在';
     this.ctx.throw(403, errorMsg);
-    return false;
+    // return false;
   }
 
   // 获取用户基本信息
@@ -51,6 +51,28 @@ class UsersService extends Service {
       columns: [ 'username', 'avatar_url', 'phone' ],
     });
     return result[0];
+  }
+
+  // 注册
+  async register(obj) {
+    const { ctx } = this;
+    const phone = obj.phone;
+    if (await this.isExistByPhone(phone)) {
+      ctx.throw(403, '手机号已注册');
+    } else {
+      const createTime = ctx.service.utils.getNowFormatTime();
+      const username = obj.username || phone;
+      const avatarUrl = obj.uploader || null;
+      const password = obj.password;
+      return await this.app.mysql.insert('user', {
+        username,
+        avatar_url: avatarUrl,
+        phone,
+        password,
+        create_time: createTime,
+        update_time: createTime,
+      });
+    }
   }
 }
 

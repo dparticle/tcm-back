@@ -32,12 +32,12 @@ class TokenService extends Service {
     // egg-jwt 的时间只记录到秒，所以它保存的是 10 位时间戳
     // Date().getTime() 获取的是 13 位时间戳，做计算需要乘以 1000
     const exp = (this.parseToken(token)).exp * 1000;
-    this.ctx.logger.info('解析 token 获取有效期 => ' + this.formatDate(exp));
+    this.ctx.logger.info('解析 token 获取有效期 => ' + this.formatDateByMilliseconds(exp));
     return Number(exp);
   }
 
   // 格式化时间，毫秒数格式化
-  formatDate(milliseconds) {
+  formatDateByMilliseconds(milliseconds) {
     return moment(new Date().setTime(milliseconds))
       .format('YYYY-MM-DD HH:mm:ss');
   }

@@ -15,6 +15,6 @@ module.exports = app => {
   // user api
   router.post('/api/v1/login', controller.v1.users.login);
   router.post('/api/v1/users/refreshToken', controller.v1.users.refreshToken);
+  router.post('/api/v1/users', controller.v1.users.reg);
   router.get('/api/v1/users/me', app.jwt, controller.v1.users.me);
-  router.post('/user/reg', controller.v1.users.reg);
 };

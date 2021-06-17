@@ -16,29 +16,9 @@ class UsersController extends Controller {
   }
 
   async reg() {
-    // log
-    console.log('POST /user/reg');
     const { ctx } = this;
-    console.log(ctx.request.body);
-    const phone = ctx.request.body.phone;
-    if (await this.isNewUser(phone)) {
-      const createTime = moment(new Date())
-        .format('YYYY-MM-DD HH:mm:ss');
-      // 如果 username 是空，与手机号相同
-      const username = ctx.request.body.username === undefined ? phone : ctx.request.body.username;
-      const avatar_url = ctx.request.body.uploader === undefined ? null : ctx.request.body.uploader[0].url;
-      const password = ctx.request.body.password;
-      ctx.body = await this.app.mysql.insert('user', {
-        username,
-        avatar_url,
-        phone,
-        password,
-        create_time: createTime,
-        update_time: createTime,
-      });
-    } else {
-      ctx.body = { error: '手机号已注册' };
-    }
+    ctx.logger.info('reg data: %o', ctx.request.body);
+    ctx.body = await this.service.users.register(ctx.request.body);
   }
 
   async me() {

@@ -5,7 +5,7 @@
  */
 module.exports = app => {
   const { router, controller } = app;
-  router.get('/', controller.v1.home.index);
+  router.get('/', controller.home.index);
   // tcm api
   router.post('/tcm/rough', controller.v1.tcms.searchAllRoughInfo);
   router.post('/tcm', app.jwt, controller.v1.tcms.searchCompleteInfoById);
@@ -15,6 +15,6 @@ module.exports = app => {
   // user api
   router.post('/api/v1/login', controller.v1.users.login);
   router.post('/api/v1/users/refreshToken', controller.v1.users.refreshToken);
-  router.post('/api/v1/users', controller.v1.users.reg);
+  router.resources('users', '/api/v1/users', controller.v1.users);
   router.get('/api/v1/users/me', app.jwt, controller.v1.users.me);
 };

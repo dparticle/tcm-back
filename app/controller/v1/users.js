@@ -1,6 +1,5 @@
 'use strict';
 
-const moment = require('moment');
 const Controller = require('egg').Controller;
 
 class UsersController extends Controller {
@@ -15,10 +14,10 @@ class UsersController extends Controller {
     ctx.body = service.token.createToken({ id: await service.users.getUserId({ phone }) });
   }
 
-  async reg() {
+  async create() {
     const { ctx } = this;
     ctx.logger.info('reg data: %o', ctx.request.body);
-    ctx.body = await this.service.users.register(ctx.request.body);
+    ctx.body = await this.service.users.create(ctx.request.body);
   }
 
   async me() {

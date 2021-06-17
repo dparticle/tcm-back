@@ -54,7 +54,7 @@ class UsersService extends Service {
   }
 
   // 注册
-  async register(obj) {
+  async create(obj) {
     const { ctx } = this;
     const phone = obj.phone;
     if (await this.isExistByPhone(phone)) {

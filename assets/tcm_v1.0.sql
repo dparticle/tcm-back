@@ -11,11 +11,60 @@
  Target Server Version : 50729
  File Encoding         : 65001
 
- Date: 05/06/2021 16:43:15
+ Date: 17/06/2021 23:19:59
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for recommend_article
+-- ----------------------------
+DROP TABLE IF EXISTS `recommend_article`;
+CREATE TABLE `recommend_article` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `date` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `create_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of recommend_article
+-- ----------------------------
+BEGIN;
+INSERT INTO `recommend_article` VALUES (1, '《求是》杂志发表习近平总书记重要', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-16/22032.html', '2021-06-16', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (2, '习近平对湖北十堰市张湾区艳湖社区', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-14/22017.html', '2021-06-14', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (3, '习近平总书记考察青海纪实：高天厚土', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-12/22016.html', '2021-06-12', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (4, '习近平在青海考察：坚持以人民为中心', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-10/21997.html', '2021-06-10', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (5, '习近平：生态是资源和财富，是我们的宝', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-10/21998.html', '2021-06-09', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (6, '中医药法执法检查报告建议提升中医', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-09/21987.html', '2021-06-09', '2021-06-17 21:37:38');
+INSERT INTO `recommend_article` VALUES (7, '习近平向第二届中国－中东欧国家博览', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-09/21986.html', '2021-06-09', '2021-06-17 21:37:38');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for recommend_tcm
+-- ----------------------------
+DROP TABLE IF EXISTS `recommend_tcm`;
+CREATE TABLE `recommend_tcm` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tcm_id` int(11) NOT NULL,
+  `create_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of recommend_tcm
+-- ----------------------------
+BEGIN;
+INSERT INTO `recommend_tcm` VALUES (1, 12, '2021-06-15 22:22:31');
+INSERT INTO `recommend_tcm` VALUES (2, 120, '2021-06-15 22:22:39');
+INSERT INTO `recommend_tcm` VALUES (3, 25, '2021-06-16 00:08:52');
+INSERT INTO `recommend_tcm` VALUES (4, 267, '2021-06-16 00:10:04');
+INSERT INTO `recommend_tcm` VALUES (5, 294, '2021-06-17 20:28:18');
+INSERT INTO `recommend_tcm` VALUES (6, 198, '2021-06-17 20:28:18');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for tcm_img
@@ -1722,6 +1771,29 @@ INSERT INTO `tcm_info` VALUES (405, '炮姜', 'Prepared Dried Ginger', 'Zingiber
 INSERT INTO `tcm_info` VALUES (406, '干姜', 'Zingiber (Dried Ginger)', 'Zingiberis Rhizoma', '温里药', '姜科植物姜Zingiber officinale (Willd.) Rosc. 的干燥根茎', '辛；热', '心、肺、肾、胃', '温中散寒，回阳通脉，燥湿消痰', '姜科', '根及根茎', '脘腹冷痛，呕吐泄泻，肢冷脉微，痰饮喘咳', '暂未有资料', '有报导在敏感患者发生接触性皮炎 [1]');
 INSERT INTO `tcm_info` VALUES (407, '生姜', 'Fresh Ginger', 'Zingiberis Rhizoma Recens', '发散风寒药', '姜科植物姜Zingiber officinale (Willd.) Rosc. 的新鲜根茎', '辛；微温', '脾、肺、胃', '解表散寒，温中止呕，化痰止咳，解鱼蟹毒', '姜科', '根茎', '风寒感冒，胃寒呕吐，寒痰咳嗽，鱼蟹中毒', '暂未有资料', '姜与Nifedipine同用，对抑制血小板的凝集作用具有协同作用\n姜与Warfarin同用可能增加出血的风险\n姜与Warfarin同用，INR值增加');
 INSERT INTO `tcm_info` VALUES (408, '酸枣仁', 'Spine Date Seed', 'Ziziphi Spinosae Semen', '养心安神药', '鼠李科植物酸枣Ziziphus jujuba Mill. var. spinosa (Bunge) Hu ex H.F. Chou 的干燥成熟种子', '甘、酸；平', '肝、胆、心', '补肝，宁心，敛汗，生津', '鼠李科', '种子', '虚烦不眠，惊悸多梦，体虚多汗，津伤口渴', '暂未有资料', '暂未有资料');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8mb4_bin NOT NULL,
+  `avatar_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `phone` varchar(11) COLLATE utf8mb4_bin NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_bin NOT NULL,
+  `create_time` datetime NOT NULL,
+  `update_time` datetime NOT NULL,
+  `remove_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+BEGIN;
+INSERT INTO `user` VALUES (1, 'admin', 'https://gitee.com/dparticle/image_host_picgo/raw/master/img/20210608001819.jpg', '18367515023', '202cb962ac59075b964b07152d234b70', '2021-06-08 14:19:25', '2021-06-08 14:19:25', NULL);
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

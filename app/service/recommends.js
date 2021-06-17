@@ -5,6 +5,7 @@ const cheerio = require('cheerio');
 
 class RecommendsService extends Service {
   async index(query) {
+    // TODO 如果在 8 点之前访问，返回前一天的
     let sql;
     if (query.type === 'tcms') {
       // 获取当天推荐的 tcm 的 id

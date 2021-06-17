@@ -16,7 +16,7 @@ class UsersController extends Controller {
 
   async create() {
     const { ctx } = this;
-    ctx.logger.info('reg data: %o', ctx.request.body);
+    ctx.logger.info('create data: %o', ctx.request.body);
     ctx.body = await this.service.users.create(ctx.request.body);
   }
 

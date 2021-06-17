@@ -37,7 +37,7 @@ class TcmsService extends Service {
   async getTotalCount() {
     this.ctx.logger.info('get total count');
     const result = await this.app.mysql.query('SELECT COUNT(*) AS total_count FROM tcm_info');
-    return result[0];
+    return result[0].total_count;
   }
 
   // 获取某个 tcm 指定字段信息

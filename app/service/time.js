@@ -4,7 +4,7 @@ const moment = require('moment');
 const { Service } = require('egg');
 
 class TimeService extends Service {
-  getNowFormatTime() {
+  getNowFormatDate() {
     return moment(Date.now())
       .format('YYYY-MM-DD HH:mm:ss');
   }

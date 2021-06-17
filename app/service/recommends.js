@@ -40,8 +40,41 @@ class RecommendsService extends Service {
     }
     const result = await this.app.mysql.query(sql);
     return await Promise.all(result.map(async v => {
-      return await this.getTcmSimpleInfo(v.id, [ 'id', 'name', 'actions' ]);
+      return await this.ctx.service.tcms.getTcmSimpleInfo(v.id, [ 'id', 'name', 'actions' ]);
     }));
+  }
+
+  async createTcms() {
+    if ((await this.index({ type: 'tcms' })).length === 0) {
+      const { ctx, app } = this;
+      // 获取近 30 天推荐过的 tcm id
+      let recommended = await app.mysql.query('SELECT tcm_id as id FROM recommend_tcm where DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)');
+      recommended = recommended.map(v => {
+        return v.id;
+      });
+      // 数组去重，对象相同无法去重
+      recommended = [ ...new Set(recommended) ];
+      // this.ctx.logger.info('30 recommended ids: %o', recommended);
+      // 获取药品总数，407
+      const totalCount = (await ctx.service.tcms.getTotalCount()) - 1;
+      const newRecommends = [];
+      while (newRecommends.length < 2) {
+        // 可均衡获取 1 到 408 的随机整数
+        const num = Math.floor((Math.random() * totalCount) + 1);
+        if (recommended.indexOf(num) === -1) {
+          newRecommends.push(num);
+          recommended.push(num); // 防止这次出现的 id 再次出现
+        }
+      }
+      ctx.logger.info('new recommend tcm ids: %o', newRecommends);
+      const now = ctx.service.time.getNowFormatDate();
+      for (const id of newRecommends) {
+        const result = await app.mysql.insert('recommend_tcm', { tcm_id: id, create_time: now });
+        if (result.affectedRows === 1) {
+          ctx.logger.info(`insert ${id} id in ${now}`);
+        }
+      }
+    }
   }
 }
 

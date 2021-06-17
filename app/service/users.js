@@ -60,7 +60,7 @@ class UsersService extends Service {
     if (await this.isExistByPhone(phone)) {
       ctx.throw(403, '手机号已注册');
     } else {
-      const createTime = ctx.service.time.getNowFormatTime();
+      const createTime = ctx.service.time.getNowFormatDate();
       const username = obj.username || phone;
       const avatarUrl = obj.uploader || null;
       const password = obj.password;

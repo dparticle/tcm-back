@@ -1,6 +1,7 @@
 'use strict';
 
 const { Service } = require('egg');
+const cheerio = require('cheerio');
 
 class RecommendsService extends Service {
   async index(query) {
@@ -9,44 +10,21 @@ class RecommendsService extends Service {
       // 获取当天推荐的 tcm 的 id
       sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
     } else if (query.type === 'articles') {
-      // TODO 爬虫
-      return [
-        {
-          title: '孙达出席中医药—尤纳尼传统医药国际研讨会暨中国—巴基斯坦中医药中心揭牌仪式',
-          url: 'http://ghs.satcm.gov.cn/gongzuodongtai/2021-06-10/21999.html',
-          date: '2021-06-10',
-        },
-        {
-          title: '孙达出席中医药—尤纳尼传统医药国际研讨会暨中国—巴基斯坦中医药中心揭牌仪式',
-          url: 'http://ghs.satcm.gov.cn/gongzuodongtai/2021-06-10/21999.html',
-          date: '2021-06-10',
-        },
-        {
-          title: '孙达出席中医药—尤纳尼传统医药国际研讨会暨中国—巴基斯坦中医药中心揭牌仪式',
-          url: 'http://ghs.satcm.gov.cn/gongzuodongtai/2021-06-10/21999.html',
-          date: '2021-06-10',
-        },
-        {
-          title: '孙达出席中医药—尤纳尼传统医药国际研讨会暨中国—巴基斯坦中医药中心揭牌仪式',
-          url: 'http://ghs.satcm.gov.cn/gongzuodongtai/2021-06-10/21999.html',
-          date: '2021-06-10',
-        },
-        {
-          title: '孙达出席中医药—尤纳尼传统医药国际研讨会暨中国—巴基斯坦中医药中心揭牌仪式',
-          url: 'http://ghs.satcm.gov.cn/gongzuodongtai/2021-06-10/21999.html',
-          date: '2021-06-10',
-        },
-      ];
+      sql = 'SELECT title, url, date FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
     }
     const result = await this.app.mysql.query(sql);
-    return await Promise.all(result.map(async v => {
-      return await this.ctx.service.tcms.getTcmSimpleInfo(v.id, [ 'id', 'name', 'actions' ]);
-    }));
+    if (query.type === 'tcms') {
+      return await Promise.all(result.map(async v => {
+        return await this.ctx.service.tcms.getTcmSimpleInfo(v.id, [ 'id', 'name', 'actions' ]);
+      }));
+    }
+    return result;
   }
 
   async createTcms() {
+    const { ctx } = this;
     if ((await this.index({ type: 'tcms' })).length === 0) {
-      const { ctx, app } = this;
+      const { app } = this;
       // 获取近 30 天推荐过的 tcm id
       let recommended = await app.mysql.query('SELECT tcm_id as id FROM recommend_tcm where DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)');
       recommended = recommended.map(v => {
@@ -74,8 +52,56 @@ class RecommendsService extends Service {
           ctx.logger.info(`insert ${id} id in ${now}`);
         }
       }
+    } else {
+      ctx.logger.info('recommended today tcm ids already exists');
     }
   }
+
+  // 爬取国家中医药管理局时政要闻栏列表
+  async fetchArticles() {
+    const { ctx } = this;
+    if ((await this.index({ type: 'articles' })).length === 0) {
+      const url = 'http://www.satcm.gov.cn';
+      const result = await ctx.curl(url, {
+        method: 'GET',
+      });
+      const $ = cheerio.load(result.data);
+      const lis = $('#JKDiv_1 li');
+      const articles = [];
+      for (let i = 0; i < lis.length; i++) {
+        const li = lis.eq(i);
+        const article = {
+          title: li.find('a')
+            .text()
+            .trim(),
+          url: url + li.find('a')
+            .attr('href')
+            .trim(),
+          date: li.find('font')
+            .text()
+            .trim(),
+        };
+        // ctx.logger.info(article);
+        articles.push(article);
+      }
+      // 插入数据库
+      const now = ctx.service.time.getNowFormatDate();
+      for (const article of articles) {
+        const result = await this.app.mysql.insert('recommend_article', {
+          title: article.title,
+          url: article.url,
+          date: article.date,
+          create_time: now,
+        });
+        if (result.affectedRows === 1) {
+          ctx.logger.info(`insert ${article.title} in ${now}`);
+        }
+      }
+    } else {
+      ctx.logger.info('recommended today articles already exists');
+    }
+  }
+
 }
 
 module.exports = RecommendsService;

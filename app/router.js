@@ -11,11 +11,8 @@ module.exports = app => {
   router.resources('tcms', '/api/v1/tcms', controller.v1.tcms);
   // GET 获取 tcm
   router.resources('tcm', '/api/v1/tcms/:id', controller.v1.tcms);
-  // router.post('/tcm/rough', controller.v1.tcms.searchAllRoughInfo);
-  // router.post('/tcm', app.jwt, controller.v1.tcms.searchCompleteInfoById);
-  // router.get('/tcm/sum', controller.v1.tcms.getSum);
-  router.get('/recommend/tcm', controller.v1.tcms.getRecommendTcm);
-  router.get('/recommend/article', controller.v1.tcms.getRecommendArticle);
+  // recommends api
+  router.resources('recommends', '/api/v1/recommends', controller.v1.recommends);
   // users api
   router.post('/api/v1/login', controller.v1.users.login);
   router.post('/api/v1/users/refreshToken', controller.v1.users.refreshToken);

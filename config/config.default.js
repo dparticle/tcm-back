@@ -16,7 +16,8 @@ module.exports = appInfo => {
   config.keys = appInfo.name + '_1622878569168_9281';
 
   // add your middleware config here
-  config.middleware = [];
+  // 中间件执行顺序则是按照数组中的顺序执行
+  config.middleware = [ 'auth' ];
 
   // egg-mysql config
   config.mysql = {
@@ -41,6 +42,14 @@ module.exports = appInfo => {
 
   config.jwt = {
     secret: 'dparticle',
+    // 不需要验证 token 的路由
+    allowed: [
+      '/api/v1/login',
+      '/api/v1/users/refreshToken',
+      // 完全匹配
+      '^/api/v1/users$',
+      '^/api/v1/tcms$',
+    ],
   };
 
   // csrf 关闭

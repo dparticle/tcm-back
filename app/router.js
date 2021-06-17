@@ -22,5 +22,5 @@ module.exports = app => {
   // GET 查询/POST 创建 users
   router.resources('users', '/api/v1/users', controller.v1.users);
   // TODO 更新 user
-  router.get('/api/v1/users/me', app.jwt, controller.v1.users.me);
+  router.get('/api/v1/users/me', controller.v1.users.me);
 };

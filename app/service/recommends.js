@@ -5,13 +5,20 @@ const cheerio = require('cheerio');
 
 class RecommendsService extends Service {
   async index(query) {
-    // TODO 如果在 8 点之前访问，返回前一天的
+    // 如果在 8 点之前访问，返回前一天的
+    const hour = new Date().getHours();
+    let sqlDate;
+    if (hour < 8) {
+      sqlDate = ' TO_DAYS(NOW()) - TO_DAYS(create_time) <= 1';
+    } else {
+      sqlDate = ' TO_DAYS(create_time) = TO_DAYS(NOW())';
+    }
     let sql;
     if (query.type === 'tcms') {
       // 获取当天推荐的 tcm 的 id
-      sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+      sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE ' + sqlDate;
     } else if (query.type === 'articles') {
-      sql = 'SELECT title, url, date FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+      sql = 'SELECT title, url, date FROM recommend_article WHERE ' + sqlDate;
     }
     const result = await this.app.mysql.query(sql);
     if (query.type === 'tcms') {

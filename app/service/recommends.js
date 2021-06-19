@@ -29,9 +29,24 @@ class RecommendsService extends Service {
     return result;
   }
 
+  // 判断今日是否已存在推荐
+  async isExistToday(type) {
+    let sql;
+    if (type === 'tcms') {
+      sql = 'SELECT id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+    } else if (type === 'articles') {
+      sql = 'SELECT id FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+    }
+    const result = await this.app.mysql.query(sql);
+    if (result.length === 0) {
+      return false;
+    }
+    return true;
+  }
+
   async createTcms() {
     const { ctx } = this;
-    if ((await this.index({ type: 'tcms' })).length === 0) {
+    if (!(await this.isExistToday('tcms'))) {
       const { app } = this;
       // 获取近 30 天推荐过的 tcm id
       let recommended = await app.mysql.query('SELECT tcm_id as id FROM recommend_tcm where DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)');
@@ -68,7 +83,7 @@ class RecommendsService extends Service {
   // 爬取国家中医药管理局时政要闻栏列表
   async fetchArticles() {
     const { ctx } = this;
-    if ((await this.index({ type: 'articles' })).length === 0) {
+    if (!(await this.isExistToday('articles'))) {
       const url = 'http://www.satcm.gov.cn';
       const result = await ctx.curl(url, {
         method: 'GET',

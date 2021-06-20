@@ -18,6 +18,8 @@ module.exports = app => {
   router.post('/api/v1/users/refreshToken', controller.v1.users.refreshToken);
   // GET 查询/POST 创建 users
   router.resources('users', '/api/v1/users', controller.v1.users);
+  // 更新用户名
+  router.resources('user', '/api/v1/users/:id', controller.v1.users);
   // TODO 更新 user
   router.get('/api/v1/users/me', controller.v1.users.me);
 };

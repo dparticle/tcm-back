@@ -18,7 +18,7 @@ class RecommendsService extends Service {
       // 获取当天推荐的 tcm 的 id
       sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE ' + sqlDate;
     } else if (query.type === 'articles') {
-      sql = 'SELECT title, url, date FROM recommend_article WHERE ' + sqlDate;
+      sql = 'SELECT title, url, date FROM recommend_article WHERE ' + sqlDate + ` AND type = '${query.type_value}'`;
     }
     const result = await this.app.mysql.query(sql);
     if (query.type === 'tcms') {
@@ -38,10 +38,7 @@ class RecommendsService extends Service {
       sql = 'SELECT id FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
     }
     const result = await this.app.mysql.query(sql);
-    if (result.length === 0) {
-      return false;
-    }
-    return true;
+    return result.length !== 0;
   }
 
   async createTcms() {
@@ -89,23 +86,31 @@ class RecommendsService extends Service {
         method: 'GET',
       });
       const $ = cheerio.load(result.data);
-      const lis = $('#JKDiv_1 li');
+      const liss = [ $('#JKDiv_0 li'), $('#JKDiv_1 li'), $('#JKDiv_2 li') ];
+      const types = [ '工作动态', '时政要闻', '各地动态' ];
       const articles = [];
-      for (let i = 0; i < lis.length; i++) {
-        const li = lis.eq(i);
-        const article = {
-          title: li.find('a')
-            .text()
-            .trim(),
-          url: url + li.find('a')
-            .attr('href')
-            .trim(),
-          date: li.find('font')
-            .text()
-            .trim(),
-        };
-        // ctx.logger.info(article);
-        articles.push(article);
+      // 相当于 range(0, 3)
+      for (const i in [ ...Array(3)
+        .keys() ]) {
+        const lis = liss[i];
+        const type = types[i];
+        for (let j = 0; j < lis.length; j++) {
+          const li = lis.eq(j);
+          const article = {
+            title: li.find('a')
+              .text()
+              .trim(),
+            url: url + li.find('a')
+              .attr('href')
+              .trim(),
+            date: li.find('font')
+              .text()
+              .trim(),
+            type,
+          };
+          // ctx.logger.info(article);
+          articles.push(article);
+        }
       }
       // 插入数据库
       const now = ctx.service.time.getNowFormatDate();
@@ -114,6 +119,7 @@ class RecommendsService extends Service {
           title: article.title,
           url: article.url,
           date: article.date,
+          type: article.type,
           create_time: now,
         });
         if (result.affectedRows === 1) {

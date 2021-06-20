@@ -5,7 +5,7 @@ const Subscription = require('egg').Subscription;
 class UpdateRecommends extends Subscription {
   static get schedule() {
     return {
-      cron: '0 0 8 * * *', // 每天 8 点执行一次
+      cron: '0 55 7 * * *', // 每天 7 点 55 分执行一次，8 点获取
       immediate: true, // 在应用启动并 ready 后立刻执行一次
       type: 'all', // 指定所有的 worker 都需要执行
     };

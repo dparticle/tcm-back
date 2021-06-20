@@ -3,6 +3,26 @@
 const { Service } = require('egg');
 
 class UsersService extends Service {
+  // 更新
+  async update(id, params) {
+    const { ctx } = this;
+    params.update_time = ctx.service.time.getNowFormatDate();
+    const columns = Object.keys(params);
+    const values = Object.values(params);
+
+    const sql = 'UPDATE user SET ' + columns.join(' = ? ,') + ` = ? WHERE id = ${id}`;
+    // 直接拼接字符串是不会有引号的，？ 插入法有引号
+    try {
+      const result = await this.app.mysql.query(sql, values);
+      if (result.affectedRows === 1) {
+        ctx.logger.info('update success');
+      }
+    } catch (e) {
+      // TODO 异常处理（全局）
+      ctx.throw(500, e.message);
+    }
+  }
+
   // 获取用户 id
   async getUserId(obj) {
     const result = await this.app.mysql.select('user', {
@@ -44,10 +64,19 @@ class UsersService extends Service {
     // return false;
   }
 
-  // 获取用户基本信息
+  // id 获取用户基本信息
   async getInfoById(id) {
     const result = await this.app.mysql.select('user', {
       where: { id },
+      columns: [ 'username', 'avatar_url', 'phone' ],
+    });
+    return result[0];
+  }
+
+  // phone 获取用户基本信息
+  async getInfoByPhone(phone) {
+    const result = await this.app.mysql.select('user', {
+      where: { phone },
       columns: [ 'username', 'avatar_url', 'phone' ],
     });
     return result[0];
@@ -60,6 +89,10 @@ class UsersService extends Service {
     if (await this.isExistByPhone(phone)) {
       ctx.throw(403, '手机号已注册');
     } else {
+      const sms = obj.sms;
+      if (!await ctx.service.verifications.verify(phone, sms)) {
+        ctx.throw(403, '验证码错误');
+      }
       const createTime = ctx.service.time.getNowFormatDate();
       const username = obj.username || phone;
       const avatarUrl = obj.uploader || null;

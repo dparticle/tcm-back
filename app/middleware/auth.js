@@ -28,12 +28,16 @@ module.exports = (options, app) => {
       try {
         ctx.state.user = await app.jwt.verify(token, app.config.jwt.secret);
         await next();
-      } catch (err) {
-        ctx.logger.error('token 鉴权失败');
-        ctx.throw(401, 'token 鉴权失败');
+      } catch (e) {
+        // sql 语法错误也会在此捕获异常，因为在执行 sql 语句时没有做异常处理，导致向上返回（已解决）
+        if (e.name === 'JsonWebTokenError') {
+          ctx.logger.error('token 鉴权失败');
+          ctx.throw(401, 'token 鉴权失败');
+        } else {
+          ctx.logger.error(e);
+          ctx.throw(500, e.message);
+        }
       }
-
     }
-
   };
 };

@@ -42,6 +42,7 @@ class TcmsService extends Service {
 
   // 获取某个 tcm 指定字段信息
   async getTcmInfo(id) {
+    // TODO 1,2 能搜出 1 的结果 bug
     this.ctx.logger.info('get ' + id + ' id\'s info');
     const result = await this.app.mysql.select('tcm_info', {
       where: { id },

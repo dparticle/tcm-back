@@ -20,10 +20,19 @@ class TokenService extends Service {
     return info;
   }
 
+  // 获取 token 中的 phone 信息
+  getPhone(token) {
+    const phone = (this.parseToken(token)).phone;
+    this.ctx.logger.info('解析 token 获取用户 phone => ' + phone);
+    return phone;
+  }
+
   // 获取 token 中的 id 信息
-  getId(token) {
-    const id = (this.parseToken(token)).id;
-    this.ctx.logger.info('解析 token 获取用户 id => ' + id);
+  async getId() {
+    const { ctx } = this;
+    const phone = (this.parseToken(ctx.headers.authorization.slice(7))).phone;
+    const id = await ctx.service.users.getUserId({ phone });
+    ctx.logger.info('解析 token 获取用户 id => ' + id);
     return id;
   }
 

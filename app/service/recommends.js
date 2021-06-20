@@ -5,13 +5,20 @@ const cheerio = require('cheerio');
 
 class RecommendsService extends Service {
   async index(query) {
-    // TODO 如果在 8 点之前访问，返回前一天的
+    // 如果在 8 点之前访问，返回前一天的
+    const hour = new Date().getHours();
+    let sqlDate;
+    if (hour < 8) {
+      sqlDate = ' TO_DAYS(NOW()) - TO_DAYS(create_time) <= 1';
+    } else {
+      sqlDate = ' TO_DAYS(create_time) = TO_DAYS(NOW())';
+    }
     let sql;
     if (query.type === 'tcms') {
       // 获取当天推荐的 tcm 的 id
-      sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+      sql = 'SELECT tcm_id as id FROM recommend_tcm WHERE ' + sqlDate;
     } else if (query.type === 'articles') {
-      sql = 'SELECT title, url, date FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+      sql = 'SELECT title, url, date FROM recommend_article WHERE ' + sqlDate + ` AND type = '${query.type_value}'`;
     }
     const result = await this.app.mysql.query(sql);
     if (query.type === 'tcms') {
@@ -22,9 +29,21 @@ class RecommendsService extends Service {
     return result;
   }
 
+  // 判断今日是否已存在推荐
+  async isExistToday(type) {
+    let sql;
+    if (type === 'tcms') {
+      sql = 'SELECT id FROM recommend_tcm WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+    } else if (type === 'articles') {
+      sql = 'SELECT id FROM recommend_article WHERE TO_DAYS(create_time) = TO_DAYS(NOW())';
+    }
+    const result = await this.app.mysql.query(sql);
+    return result.length !== 0;
+  }
+
   async createTcms() {
     const { ctx } = this;
-    if ((await this.index({ type: 'tcms' })).length === 0) {
+    if (!(await this.isExistToday('tcms'))) {
       const { app } = this;
       // 获取近 30 天推荐过的 tcm id
       let recommended = await app.mysql.query('SELECT tcm_id as id FROM recommend_tcm where DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(create_time)');
@@ -61,29 +80,37 @@ class RecommendsService extends Service {
   // 爬取国家中医药管理局时政要闻栏列表
   async fetchArticles() {
     const { ctx } = this;
-    if ((await this.index({ type: 'articles' })).length === 0) {
+    if (!(await this.isExistToday('articles'))) {
       const url = 'http://www.satcm.gov.cn';
       const result = await ctx.curl(url, {
         method: 'GET',
       });
       const $ = cheerio.load(result.data);
-      const lis = $('#JKDiv_1 li');
+      const liss = [ $('#JKDiv_0 li'), $('#JKDiv_1 li'), $('#JKDiv_2 li') ];
+      const types = [ '工作动态', '时政要闻', '各地动态' ];
       const articles = [];
-      for (let i = 0; i < lis.length; i++) {
-        const li = lis.eq(i);
-        const article = {
-          title: li.find('a')
-            .text()
-            .trim(),
-          url: url + li.find('a')
-            .attr('href')
-            .trim(),
-          date: li.find('font')
-            .text()
-            .trim(),
-        };
-        // ctx.logger.info(article);
-        articles.push(article);
+      // 相当于 range(0, 3)
+      for (const i in [ ...Array(3)
+        .keys() ]) {
+        const lis = liss[i];
+        const type = types[i];
+        for (let j = 0; j < lis.length; j++) {
+          const li = lis.eq(j);
+          const article = {
+            title: li.find('a')
+              .text()
+              .trim(),
+            url: url + li.find('a')
+              .attr('href')
+              .trim(),
+            date: li.find('font')
+              .text()
+              .trim(),
+            type,
+          };
+          // ctx.logger.info(article);
+          articles.push(article);
+        }
       }
       // 插入数据库
       const now = ctx.service.time.getNowFormatDate();
@@ -92,6 +119,7 @@ class RecommendsService extends Service {
           title: article.title,
           url: article.url,
           date: article.date,
+          type: article.type,
           create_time: now,
         });
         if (result.affectedRows === 1) {

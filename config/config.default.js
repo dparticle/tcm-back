@@ -48,6 +48,7 @@ module.exports = appInfo => {
       '/api/v1/users/refreshToken',
       // TODO 完全匹配，得用 / 匹配
       '^/api/v1/users$',
+      '^/api/v1/verifications$',
       // TODO 特定情况匹配，太蠢了，正则表达式没学好呜呜呜
       '^/api/v1/tcms\\?',
       '^/api/v1/recommends\\?',

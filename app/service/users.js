@@ -89,6 +89,10 @@ class UsersService extends Service {
     if (await this.isExistByPhone(phone)) {
       ctx.throw(403, '手机号已注册');
     } else {
+      const sms = obj.sms;
+      if (!await ctx.service.verifications.verify(phone, sms)) {
+        ctx.throw(403, '验证码错误');
+      }
       const createTime = ctx.service.time.getNowFormatDate();
       const username = obj.username || phone;
       const avatarUrl = obj.uploader || null;

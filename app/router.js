@@ -23,6 +23,7 @@ module.exports = app => {
   router.resources('users', '/api/v1/users', controller.v1.users);
   // 更新用户名
   router.resources('user', '/api/v1/users/:id', controller.v1.users);
-  // TODO 更新 user
   router.get('/api/v1/users/me', controller.v1.users.me);
+  // 手机验证码获取
+  router.resources('verifications', '/api/v1/verifications', controller.v1.verifications);
 };

@@ -13,6 +13,9 @@ module.exports = app => {
   router.resources('tcm', '/api/v1/tcms/:id', controller.v1.tcms);
   // recommends api
   router.resources('recommends', '/api/v1/recommends', controller.v1.recommends);
+  // stars api
+  router.resources('stars', '/api/v1/stars', controller.v1.stars);
+  router.resources('star', '/api/v1/stars/:id', controller.v1.stars);
   // users api
   router.post('/api/v1/login', controller.v1.users.login);
   router.post('/api/v1/users/refreshToken', controller.v1.users.refreshToken);

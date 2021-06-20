@@ -27,6 +27,15 @@ class TokenService extends Service {
     return phone;
   }
 
+  // 获取 token 中的 id 信息
+  async getId() {
+    const { ctx } = this;
+    const phone = (this.parseToken(ctx.headers.authorization.slice(7))).phone;
+    const id = await ctx.service.users.getUserId({ phone });
+    ctx.logger.info('解析 token 获取用户 id => ' + id);
+    return id;
+  }
+
   // 获取 token 有效期
   getExpires(token) {
     // egg-jwt 的时间只记录到秒，所以它保存的是 10 位时间戳

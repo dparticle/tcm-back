@@ -11,7 +11,7 @@
  Target Server Version : 50729
  File Encoding         : 65001
 
- Date: 17/06/2021 23:19:59
+ Date: 20/06/2021 20:43:44
 */
 
 SET NAMES utf8mb4;
@@ -26,21 +26,15 @@ CREATE TABLE `recommend_article` (
   `title` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `date` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+  `type` varchar(20) COLLATE utf8mb4_bin DEFAULT NULL,
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of recommend_article
 -- ----------------------------
 BEGIN;
-INSERT INTO `recommend_article` VALUES (1, '《求是》杂志发表习近平总书记重要', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-16/22032.html', '2021-06-16', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (2, '习近平对湖北十堰市张湾区艳湖社区', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-14/22017.html', '2021-06-14', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (3, '习近平总书记考察青海纪实：高天厚土', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-12/22016.html', '2021-06-12', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (4, '习近平在青海考察：坚持以人民为中心', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-10/21997.html', '2021-06-10', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (5, '习近平：生态是资源和财富，是我们的宝', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-10/21998.html', '2021-06-09', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (6, '中医药法执法检查报告建议提升中医', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-09/21987.html', '2021-06-09', '2021-06-17 21:37:38');
-INSERT INTO `recommend_article` VALUES (7, '习近平向第二届中国－中东欧国家博览', 'http://www.satcm.gov.cn/xinxifabu/shizhengyaowen/2021-06-09/21986.html', '2021-06-09', '2021-06-17 21:37:38');
 COMMIT;
 
 -- ----------------------------
@@ -52,18 +46,28 @@ CREATE TABLE `recommend_tcm` (
   `tcm_id` int(11) NOT NULL,
   `create_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of recommend_tcm
 -- ----------------------------
 BEGIN;
-INSERT INTO `recommend_tcm` VALUES (1, 12, '2021-06-15 22:22:31');
-INSERT INTO `recommend_tcm` VALUES (2, 120, '2021-06-15 22:22:39');
-INSERT INTO `recommend_tcm` VALUES (3, 25, '2021-06-16 00:08:52');
-INSERT INTO `recommend_tcm` VALUES (4, 267, '2021-06-16 00:10:04');
-INSERT INTO `recommend_tcm` VALUES (5, 294, '2021-06-17 20:28:18');
-INSERT INTO `recommend_tcm` VALUES (6, 198, '2021-06-17 20:28:18');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for star
+-- ----------------------------
+DROP TABLE IF EXISTS `star`;
+CREATE TABLE `star` (
+  `tcm_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `create_time` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of star
+-- ----------------------------
+BEGIN;
 COMMIT;
 
 -- ----------------------------
@@ -1787,13 +1791,30 @@ CREATE TABLE `user` (
   `update_time` datetime NOT NULL,
   `remove_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
 BEGIN;
-INSERT INTO `user` VALUES (1, 'admin', 'https://gitee.com/dparticle/image_host_picgo/raw/master/img/20210608001819.jpg', '18367515023', '202cb962ac59075b964b07152d234b70', '2021-06-08 14:19:25', '2021-06-08 14:19:25', NULL);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for verification_code
+-- ----------------------------
+DROP TABLE IF EXISTS `verification_code`;
+CREATE TABLE `verification_code` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `phone` varchar(20) COLLATE utf8mb4_bin NOT NULL,
+  `code` varchar(6) COLLATE utf8mb4_bin NOT NULL,
+  `create_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- ----------------------------
+-- Records of verification_code
+-- ----------------------------
+BEGIN;
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

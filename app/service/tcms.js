@@ -60,20 +60,37 @@ class TcmsService extends Service {
       where: { id },
       columns,
     });
-    result[0].img = (await this.getImageUrls(id))[0];
+    result[0].img = await this.getSmallImageUrls(id);
     return result[0];
   }
+
+  // 通过 id 获取体积小的图片资源 URL
+  async getSmallImageUrls(id) {
+    this.ctx.logger.info('get ' + id + ' id\'s small image url');
+    const result = await this.app.mysql.select('tcm_img_small', {
+      where: { tcm_id: id },
+      // columns: [ 'img_url' ],
+      columns: [ 'img_url' ],
+    });
+    if (result.length === 0) {
+      return null;
+    }
+    return result[0].img_url;
+  }
+
 
   // 通过 id 获取图片资源 URL
   async getImageUrls(id) {
     this.ctx.logger.info('get ' + id + ' id\'s image urls');
     const result = await this.app.mysql.select('tcm_img', {
       where: { tcm_id: id },
-      columns: [ 'img_url' ],
+      // columns: [ 'img_url' ],
+      columns: [ 'local_url' ],
     });
     const imgList = [];
     result.forEach(v => {
-      imgList.push(v.img_url);
+      // imgList.push(v.img_url);
+      imgList.push(v.local_url);
     });
     return imgList;
   }

@@ -35,7 +35,7 @@ module.exports = (options, app) => {
           ctx.throw(401, 'token 鉴权失败');
         } else {
           ctx.logger.error(e);
-          ctx.throw(500, e.message);
+          ctx.throw(401, e.message);
         }
       }
     }
